@@ -93,8 +93,8 @@ def run_construct_with_controls(job, context, sample, fasta_id, fasta_name, vcf_
             pos_region_names = None
             neg_region_names = None
         if merge_output_name:
-            pos_output_name = mergeoutput.name.rstrip('.vg') + '_{}.vg'.format(sample)
-            neg_output_name = mergeoutput.name.rstrip('.vg') + '_minus_{}.vg'.format(sample)
+            pos_output_name = merge_output_name.rstrip('.vg') + '_{}.vg'.format(sample)
+            neg_output_name = merge_output_name.rstrip('.vg') + '_minus_{}.vg'.format(sample)
         else:
             pos_output_name = None
             neg_output_name = None
@@ -135,7 +135,7 @@ def run_construct_with_controls(job, context, sample, fasta_id, fasta_name, vcf_
         else:
             filter_region_names = None
         if merge_output_name:
-            filter_output_name = mergeoutput.name.rstrip('.vg') + '_filter.vg'
+            filter_output_name = merge_output_name.rstrip('.vg') + '_filter.vg'
         else:
             filter_output_name = None
 
