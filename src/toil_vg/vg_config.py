@@ -100,6 +100,11 @@ calling-cores: 1
 calling-mem: '4G'
 calling-disk: '2G'
 
+# Resources for running stats on chunks
+stats-cores: 1
+stats-mem: '4G'
+stats-disk: '2G'
+
 # Resources for vcfeval
 vcfeval-cores: 1
 vcfeval-mem: '4G'
@@ -317,6 +322,11 @@ call-chunk-disk: '100G'
 calling-cores: 1
 calling-mem: '8G'
 calling-disk: '8G'
+
+# Resources for running stats on chunks
+stats-cores: 1
+stats-mem: '8G'
+stats-disk: '8G'
 
 # Resources for vcfeval
 vcfeval-cores: 32
