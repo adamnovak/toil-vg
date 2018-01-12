@@ -276,11 +276,13 @@ def run_gcsa_indexing(job, context, kmers_ids, graph_names, index_name):
 
 
 def run_xg_indexing(job, context, inputGraphFileIDs, graph_names, index_name,
-                    vcf_phasing_file_id = None, tbi_phasing_file_id = None, make_gbwt = False):
+                    vcf_phasing_file_id = None, tbi_phasing_file_id = None, make_gbwt = False, exclude = []):
     """
     Make the xg index and optional GBWT haplotype index.
     
     Saves the xg in the outstore as <index_name>.xg and the GBWT, if requested, as <index_name>.gbwt.
+    
+    Exclude is a list of sample names to exclude form the haplotype index.
     
     Return a pair of file IDs, (xg_id, gbwt_id). The GBWT ID will be None if no GBWT is generated.
     """
@@ -311,6 +313,11 @@ def run_xg_indexing(job, context, inputGraphFileIDs, graph_names, index_name,
         if make_gbwt:
             # Write the haplotype index to its own file
             phasing_opts += ['--gbwt-name', os.path.basename(gbwt_filename)]
+        
+        for to_exclude in exclude:
+            # Exclude all the samples specified from the index
+            phasing_opts.append('--exclude')
+            phasing_opts.append(to_exclude)
     else:
         phasing_opts = []
 

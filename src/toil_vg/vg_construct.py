@@ -72,7 +72,7 @@ def construct_subparser(parser):
     parser.add_argument("--gbwt_index", action="store_true",
                         help="Make a GBWT index alongside the xg index for each output graph")
     parser.add_argument("--haplo_sample", type=str,
-                        help="Make haplotype thread graphs (for simulating from) for this sample")
+                        help="Make haplotype thread graphs (for read simulation) and exclude sample from haplotype indexing")
     parser.add_argument("--primary", action="store_true",
                         help="Make the primary graph (no variants)")
     parser.add_argument("--no_base", action="store_true",
@@ -359,6 +359,7 @@ def run_construct_all(job, context, fasta_ids, fasta_names, vcf_inputs,
                                                         vcf_phasing_file_id = vcf_ids[0],
                                                         tbi_phasing_file_id = tbi_ids[0],
                                                         make_gbwt = True,
+                                                        exclude = [haplo_sample] if haplo_samle is not None else [],
                                                         cores=context.config.xg_index_cores,
                                                         memory=context.config.xg_index_mem,
                                                         disk=context.config.xg_index_disk)
