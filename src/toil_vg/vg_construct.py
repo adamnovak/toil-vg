@@ -265,6 +265,15 @@ def run_generate_input_vcfs(job, context, sample, vcf_ids, vcf_names, tbi_ids,
         output['haplo'] = [hap_control_vcf_ids, hap_control_vcf_names, hap_control_tbi_ids,
                            hap_output_name, hap_region_names]
 
+        if make_base_graph:
+            # We also want to do a version of the normal base graph where the full GBWT is present
+            # By default in the GBWT we remove the haplo sample from the GBWT
+            
+            full_output_name = remove_ext(output_name, '.vg') + '_{}_fullgbwt.vg'.format(haplo_sample)
+
+            output['fullgbwt'] = [vcf_ids, vcf_names, tbi_ids, full_output_name,
+                  [output_name + '_fullgbwt_' + c.replace(':','-') for c in regions] if regions else None]
+
     if do_primary:
         if regions:
             primary_region_names = [output_name + '_primary'  + '_' + c.replace(':','-') for c in regions]
@@ -354,12 +363,15 @@ def run_construct_all(job, context, fasta_ids, fasta_names, vcf_inputs,
             if gbwt_index and len(vcf_ids) == 1 and  len(tbi_ids) == 1:
                 # Build with the GBWT, but only if we have exactly one VCF.
                 # Some graphs (like primary) end up with no VCF and thus shouldn't get a GBWT
+                # Make sure to exclude the haplo sample used later to generate reads,
+                # unless we are the fullgbwt build.
                 xg_job = construct_job.addFollowOnJobFn(run_xg_indexing, context, vg_ids,
                                                         vg_names, output_name_base,
                                                         vcf_phasing_file_id = vcf_ids[0],
                                                         tbi_phasing_file_id = tbi_ids[0],
                                                         make_gbwt=True,
-                                                        exclude=[haplo_sample] if haplo_sample is not None else [],
+                                                        exclude=[haplo_sample] if (haplo_sample is not None and
+                                                            name != 'fullgbwt') else [],
                                                         cores=context.config.xg_index_cores,
                                                         memory=context.config.xg_index_mem,
                                                         disk=context.config.xg_index_disk)
