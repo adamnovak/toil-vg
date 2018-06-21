@@ -434,6 +434,11 @@ def run_construct_all(job, context, fasta_ids, fasta_names, vcf_inputs,
 
         vg_names = [remove_ext(i, '.vg') + '.vg' for i in vg_names]
 
+        # Decide what indexes to compute for this particular graph.
+        # In general we compute all the indexes we are told to.
+        make_graph_gbwt = gbwt_index
+        make_graph_snarls = snarls_index
+
         if not regions:
             chroms = []
             gbwt_regions = []
@@ -493,6 +498,15 @@ def run_construct_all(job, context, fasta_ids, fasta_names, vcf_inputs,
                 # in the indexing step below, we want to index our haplo-extracted sample graph
                 vg_ids = join_job.rv(0)
                 output_name_base = sample_name_base
+                
+                # We should not attempt to compute snarls or a GBWT for this
+                # graph, since it will only contain the one sample. TODO: We
+                # can remove this when we fix sample graph extraction not to
+                # create internal tips, or when we fix snarl indexing to root
+                # the graph reasonably in spite of them.
+                make_graph_gbwt = False
+                make_graph_snarls = False
+                
             
             elif name == 'haplo':
                 assert haplo_extraction_sample is not None            
@@ -515,8 +529,8 @@ def run_construct_all(job, context, fasta_ids, fasta_names, vcf_inputs,
                                                        input_tbi_ids if gbwt_index else [],
                                                        node_mapping_id = mapping_id,
                                                        skip_xg=not xg_index, skip_gcsa=not gcsa_index,
-                                                       skip_id_ranges=True, skip_snarls=not snarls_index,
-                                                       make_gbwt=gbwt_index, gbwt_prune=gbwt_prune, gbwt_regions=gbwt_regions)
+                                                       skip_id_ranges=True, skip_snarls=not make_graph_snarls,
+                                                       make_gbwt=make_graph_gbwt, gbwt_prune=gbwt_prune, gbwt_regions=gbwt_regions)
         indexes = indexing_job.rv()    
 
         output.append((vg_ids, vg_names, indexes))

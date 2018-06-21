@@ -516,6 +516,14 @@ def run_concat_files(job, context, file_ids, name=None):
     Utility job to concatenate some files. Returns the concatenated file ID.
     If given a name, writes the result to the out store with the given name.
     """
+    
+    if None in file_ids:
+        # If any of the inputs is None, the output will also be None.
+        RealtimeLogger.warning("Given None to concatenate. Returning None!")
+        return None
+        
+    # Otherwise we have work to do.
+    
     work_dir = job.fileStore.getLocalTempDir()
 
     # Download all the files
@@ -548,7 +556,7 @@ def run_snarl_indexing(job, context, inputGraphFileIDs, graph_names, index_name=
     
     Return the file ID of the snarls file.
     """
-    
+   
     assert(len(inputGraphFileIDs) == len(graph_names))
     
     if len(inputGraphFileIDs) > 1:
@@ -581,7 +589,7 @@ def run_snarl_indexing(job, context, inputGraphFileIDs, graph_names, index_name=
         
     else:
         # Base case: single graph
-   
+        
         RealtimeLogger.info("Starting snarl computation...")
         start_time = timeit.default_timer()
         
@@ -591,6 +599,13 @@ def run_snarl_indexing(job, context, inputGraphFileIDs, graph_names, index_name=
         # Download the one graph
         graph_id = inputGraphFileIDs[0]
         graph_filename = graph_names[0]
+        
+        if "_sample_" in graph_filename:
+            # Hack to rescue existing workflows where we tried to compute snarls for sample graphs.
+            # TODO: Remove when those workflows are done
+            RealtimeLogger.warning("Aborting snarl computation for {} which appears to be a sample graph".format(graph_filename))
+            return None
+        
         job.fileStore.readGlobalFile(graph_id, os.path.join(work_dir, graph_filename))
 
         # Where do we put the snarls?
